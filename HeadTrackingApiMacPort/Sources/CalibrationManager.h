@@ -10,11 +10,12 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+
 class CalibrationManager
 {
 	friend class DualCamManager;
 public:
-	CalibrationManager(std::string = "list.txt", int nx = 8, int ny = 6, int useUncalibrated = 0, float _squareSize = 5);
+	CalibrationManager(std::string = "list.txt", int nx = 8, int ny = 6, int useUncalibrated = 0, double _squareSize = 5);
 	~CalibrationManager(void);
 	bool runCalibration();
     private :
@@ -50,4 +51,5 @@ public:
 	
 	CvStereoBMState * BMState;
 };
+
 

@@ -1,13 +1,6 @@
-//
-//  DualCamManager.h
-//  HeadTrackingApiMacPort
-//
-//  Created by 김밀한 on 13. 4. 10..
-//  Copyright (c) 2013년 TLJ. All rights reserved.
-//
-
 #pragma once
 #include <string>
+#include <thread>
 #include <vector>
 #include "CalibrationManager.h"
 
@@ -18,16 +11,28 @@ public:
 	~DualCamManager(void);
 	bool calibrate(int nx = 8, int ny = 6, int useUncalibrated = 0, float _squareSize = 2.5);
 	bool isCalibrated()const;
-	void startStream(int cam$Id1 = 0, int camId2 = 2);
+	void startStream(int camId1 = 0, int camId2 = 2);
 	void findVideoDevices();
+	void getDebuggingSources();
 	void run();
+	void runThread();
     private :
+	void display3D();
+	bool threadRunning;
+	bool stopThread;
+	bool stop3D;
+    
+	std::thread* dualCamThread;
+	std::thread* display3DThread;
+    
 	CalibrationManager * calibManager;
 	std::string fileName;
 	std::vector<std::string> deviceList;
 	bool checkFileQuality(FILE *);
 	void saveCalibrationImages(int, int);
 	int chessX, chessY;
+	IplImage * depthData;
+	bool depthUpdated;
     
 	int camId1, camId2;
     
@@ -39,5 +44,6 @@ public:
 	CvSize SizeCam1;
 	CvSize SizeCam2;
 };
+
 
 

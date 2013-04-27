@@ -10,7 +10,7 @@
 #include <iostream>
 #include <exception>
 
-CalibrationManager::CalibrationManager(std::string fName, int nx, int ny, int useUncalibrated, float squareSize)
+CalibrationManager::CalibrationManager(std::string fName, int nx, int ny, int useUncalibrated, double squareSize)
 {
 	fileName = fName;
 	this->nx = nx;
@@ -158,7 +158,7 @@ bool CalibrationManager::runCalibration()
         }
         else
             putchar('.');
-        N = (int)pts.size(); //to explicit conversion
+        N = (int) pts.size();
         pts.resize(N + n, cvPoint2D32f(0,0));
 		active[lr].push_back((uchar)result);
         //assert( result != 0 );
@@ -189,7 +189,7 @@ bool CalibrationManager::runCalibration()
     CvMat _objectPoints = cvMat(1, N, CV_32FC3, &objectPoints[0] );
     CvMat _imagePoints1 = cvMat(1, N, CV_32FC2, &points[0][0] );
     CvMat _imagePoints2 = cvMat(1, N, CV_32FC2, &points[1][0] );
-    CvMat _npoints = cvMat(1, (int)npoints.size(), CV_32S, &npoints[0] );
+    CvMat _npoints = cvMat(1, (int) npoints.size(), CV_32S, &npoints[0] );
     cvSetIdentity(&_M1);
     cvSetIdentity(&_M2);
     cvZero(&_D1);
@@ -240,6 +240,7 @@ bool CalibrationManager::runCalibration()
         avgErr += err;
     }
     printf( "avg err = %g\n", avgErr/(nframes*n) );
+	avgError = avgErr/(nframes*n);
     //COMPUTE AND DISPLAY RECTIFICATION
     if( showUndistorted )
     {
@@ -387,8 +388,10 @@ bool CalibrationManager::runCalibration()
         cvReleaseMat( &img1r );
         cvReleaseMat( &img2r );
         cvReleaseMat( &disp );
+		
     }
-	if (avgErr > 2.0)
+	cvDestroyAllWindows();
+	if (avgError > 2.0)
 		return false;
 	return true;
 }
@@ -406,13 +409,20 @@ void CalibrationManager::loadData(CvSize size)
 		my2 = (CvMat *)cvLoad("my2.xml",NULL,NULL,NULL);
 		BMState = cvCreateStereoBMState();
         assert(BMState != 0);
+        //BMState->preFilterSize=41;
+        //BMState->preFilterCap=31;
+        //BMState->SADWindowSize=41;
+        //BMState->minDisparity=-64;
+        //BMState->numberOfDisparities=64;
+        //BMState->textureThreshold=10;
+        //BMState->uniquenessRatio=10;
         BMState->preFilterSize=41;
         BMState->preFilterCap=31;
         BMState->SADWindowSize=41;
         BMState->minDisparity=-64;
-        BMState->numberOfDisparities=64;
+        BMState->numberOfDisparities=128;
         BMState->textureThreshold=10;
-        BMState->uniquenessRatio=10;
+        BMState->uniquenessRatio=15;
 	}
 	catch (std::exception e)
 	{
